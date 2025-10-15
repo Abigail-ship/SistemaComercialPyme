@@ -88,7 +88,7 @@ app.UseCors("AllowAngular");
 app.UseAuthentication(); // 🔹 Debe ir antes de UseAuthorization
 app.UseAuthorization();
 
-// Habilitar servir archivos estáticos desde "uploads"
+// Habilitar servir archivos estáticos desde "uploads" para ver el cambio
 var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 
 if (!Directory.Exists(uploadsPath))
