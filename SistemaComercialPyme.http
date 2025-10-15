@@ -1,0 +1,6 @@
+@SistemaComercialPyme_HostAddress = http://localhost:5141
+
+GET {{SistemaComercialPyme_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
