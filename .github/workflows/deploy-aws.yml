@@ -3,7 +3,10 @@ name: Deploy a .NET Core App to AWS Elastic Beanstalk
 on:
   push:
     branches:
-      - main # Cambia a 'main' si esa es tu rama principal
+      # Usamos 'main' ya que esa es tu rama principal
+      - main 
+  # Esto habilita la ejecución manual en la interfaz de GitHub
+  workflow_dispatch: {} 
 
 jobs:
   deploy:
@@ -34,13 +37,22 @@ jobs:
         with:
           dotnet-version: '8.0.x' 
 
+      # ... (Pasos 1 a 3 sin cambios) ...
+
       # Paso 4: Publicar el proyecto (Compilación)
-      # Esto crea la carpeta 'deploy' con los archivos listos para ejecución
       - name: Publish .NET Core Application
         run: dotnet publish -c Release -o deploy
         
+      # === NUEVO PASO ===
+      # Paso 4.5: Empaquetar la carpeta 'deploy' en un archivo ZIP
+      - name: Zip Deployment Package
+        run: |
+          # Navega a la carpeta de compilación para comprimir su contenido
+          cd deploy
+          # Comprime todo el contenido de 'deploy/' en 'deploy.zip'
+          zip -r ../deploy.zip .
+          
       # Paso 5: Despliegue a Elastic Beanstalk
-      # Envía la carpeta 'deploy' a EB
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -50,4 +62,5 @@ jobs:
           environment_name: ${{ env.EB_ENVIRONMENT_NAME }}
           version_label: deploy-${{github.sha}}
           region: ${{ env.AWS_REGION }}
-          deployment_package: deploy/
+          # CAMBIAR a deploy.zip (el archivo que acabamos de crear)
+          deployment_package: deploy.zip
