@@ -3,7 +3,7 @@ name: Deploy a .NET Core App to AWS Elastic Beanstalk
 on:
   push:
     branches:
-      - master # Cambia a 'main' si esa es tu rama principal
+      - main # Cambia a 'main' si esa es tu rama principal
 
 jobs:
   deploy:
