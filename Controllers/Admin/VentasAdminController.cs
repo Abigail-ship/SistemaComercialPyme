@@ -86,7 +86,7 @@ namespace SistemaComercialPyme.Controllers.Admin
             if (venta.Detalleventa == null || !venta.Detalleventa.Any())
                 return BadRequest("Debe agregar al menos un producto");
 
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
             DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
             venta.Fecha = fechaMexico;
             venta.Total = 0;
@@ -241,8 +241,9 @@ namespace SistemaComercialPyme.Controllers.Admin
 
                     if (venta == null) return BadRequest();
                     // 🔹 Zona horaria de México
-                    TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+                    TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
                     DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
 
 
                     // 🔹 Monto pagado en esta transacción
@@ -329,7 +330,10 @@ namespace SistemaComercialPyme.Controllers.Admin
 
             if (ventaOriginal.Pagado.GetValueOrDefault() && venta.MetodoPagoId == 1) // efectivo
             {
-                ventaOriginal.FechaPago ??= DateTime.Now;
+                // En UpdateVenta
+                TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+                DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+                ventaOriginal.FechaPago ??= fechaMexico;
                 ventaOriginal.ReferenciaPago ??= $"EF-{Guid.NewGuid():N}".Substring(0, 8);
                 ventaOriginal.TotalPagado = ventaOriginal.Total;
             }
