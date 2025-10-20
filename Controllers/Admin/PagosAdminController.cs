@@ -22,6 +22,13 @@ namespace SistemaComercialPyme.Controllers.Admin
             _emailService = emailService;
             _configuration = configuration;
         }
+
+        private static DateTime FechaMexico()
+        {
+            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoZone);
+        }
+
         [HttpPost("crear-payment-intent")]
         public async Task<IActionResult> CrearPaymentIntent([FromBody] CrearPaymentIntentDto dto)
         {
@@ -55,7 +62,7 @@ namespace SistemaComercialPyme.Controllers.Admin
 
             compra.Estado = "Pagada";
             compra.TotalPagado = compra.Total;
-            compra.FechaPago = DateTime.Now;
+            compra.FechaPago = FechaMexico();
             await _context.SaveChangesAsync();
 
             return Ok(new { mensaje = "Compra marcada como pagada" });
@@ -131,7 +138,7 @@ namespace SistemaComercialPyme.Controllers.Admin
                         {
                             compra.TotalPagado = compra.Total;
                             compra.Estado = "Pagada";
-                            compra.FechaPago = DateTime.Now;
+                            compra.FechaPago = FechaMexico();
                             compra.ReferenciaPago = paymentIntent.Id;
 
                             _context.Update(compra);

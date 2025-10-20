@@ -23,6 +23,12 @@ namespace SistemaComercialPyme.Controllers
             _configuration = configuration;
         }
 
+        private static DateTime FechaMexico()
+        {
+            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoZone);
+        }
+
         [HttpPost("procesar")]
         public async Task<IActionResult> ProcesarPago([FromBody] PagoRequest request)
         {
@@ -65,7 +71,7 @@ namespace SistemaComercialPyme.Controllers
                 {
                     venta.TotalPagado = pagado + saldoPendiente;
                     venta.MetodoPagoId = request.MetodoPagoId;
-                    venta.FechaPago = DateTime.Now;
+                    venta.FechaPago = FechaMexico();
                     venta.ReferenciaPago = request.Referencia;
 
                     if (venta.TotalPagado >= venta.Total)
@@ -124,7 +130,7 @@ namespace SistemaComercialPyme.Controllers
                 if (venta.TotalPagado >= venta.Total)
                 {
                     venta.Pagado = true;
-                    venta.FechaPago = DateTime.Now;
+                    venta.FechaPago = FechaMexico();
                 }
 
                 _context.Update(venta);

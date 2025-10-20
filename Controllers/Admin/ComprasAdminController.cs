@@ -119,7 +119,11 @@ namespace SistemaComercialPyme.Controllers.Admin
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                compra.Fecha = DateTime.Now;
+                TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+                DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+                // Establecer fecha de creación con hora local
+                compra.Fecha = fechaMexico;
 
                 // Agrupar detalles
                 compra.DetalleCompras = compra.DetalleCompras
@@ -156,7 +160,7 @@ namespace SistemaComercialPyme.Controllers.Admin
                 {
                     compra.Estado = "Pagada";
                     compra.TotalPagado = compra.Total;
-                    compra.FechaPago = DateTime.Now;
+                    compra.FechaPago = fechaMexico;
                     await _context.SaveChangesAsync();
 
                     // ✅ Notificar proveedor con el mensaje unificado
@@ -222,6 +226,10 @@ namespace SistemaComercialPyme.Controllers.Admin
                 if (compraOriginal == null)
                     return NotFound();
 
+                // 🕒 Hora local de México
+                TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+                DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
                 // 1️⃣ Revertir stock de la compra anterior
                 foreach (var detalle in compraOriginal.DetalleCompras)
                 {
@@ -238,8 +246,8 @@ namespace SistemaComercialPyme.Controllers.Admin
                 var totalPagadoAnterior = compraOriginal.TotalPagado ?? 0;
                 var metodoPagoAnterior = compraOriginal.MetodoPagoId;
 
-                // 2️⃣ Actualizar cabecera
-                compraOriginal.Fecha = compra.Fecha;
+                // 2️⃣ Actualizar cabecera(aqui le cambié lleva compra.fecha)
+                compraOriginal.Fecha = fechaMexico;
                 compraOriginal.ProveedorId = compra.ProveedorId;
                 compraOriginal.MetodoPagoId = compra.MetodoPagoId;
 
@@ -358,10 +366,14 @@ namespace SistemaComercialPyme.Controllers.Admin
             if (compra == null)
                 return BadRequest(new { error = "Compra no encontrada" });
 
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+            DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+
             // Registrar el abono
             compra.TotalPagado = (compra.TotalPagado ?? 0) + model.MontoPagado;
             compra.MetodoPagoId = model.MetodoPagoId;
-            compra.FechaPago = DateTime.Now;
+            compra.FechaPago = fechaMexico;
             compra.ReferenciaPago = model.Referencia;
 
             // Actualizar estado según pagos
@@ -452,6 +464,11 @@ namespace SistemaComercialPyme.Controllers.Admin
 
                     if (compra != null)
                     {
+                        // 🕒 Hora local de México
+                        TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+                        DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+
                         // 1️⃣ Obtener el monto pagado desde Stripe en pesos
                         var montoPagado = paymentIntent.AmountReceived / 100m;
 
@@ -460,7 +477,7 @@ namespace SistemaComercialPyme.Controllers.Admin
 
                         // 3️⃣ Actualizar estado
                         compra.Estado = compra.TotalPagado >= compra.Total ? "Pagada" : "Pendiente";
-                        compra.FechaPago = DateTime.Now;
+                        compra.FechaPago = fechaMexico;
                         compra.ReferenciaPago = paymentIntent.Id;
 
                         _context.Update(compra);

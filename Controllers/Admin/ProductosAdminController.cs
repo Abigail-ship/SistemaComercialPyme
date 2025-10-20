@@ -18,6 +18,12 @@ namespace SistemaComercialPyme.Controllers.Admin
             _hostEnvironment = hostEnvironment;
         }
 
+        private DateTime FechaMexico()
+        {
+            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"); // Hora de México
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoZone);
+        }
+
         // GET: api/admin/productos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Producto>>> GetProductos([FromQuery] string? search)
@@ -65,7 +71,7 @@ namespace SistemaComercialPyme.Controllers.Admin
                 producto.Imagen = Path.Combine("uploads", "productos", fileName).Replace("\\", "/");
             }
 
-            producto.FechaCreacion = DateTime.Now;
+            producto.FechaCreacion = FechaMexico();
             _context.Productos.Add(producto);
             await _context.SaveChangesAsync();
 
