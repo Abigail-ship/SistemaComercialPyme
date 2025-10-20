@@ -86,7 +86,9 @@ namespace SistemaComercialPyme.Controllers.Admin
             if (venta.Detalleventa == null || !venta.Detalleventa.Any())
                 return BadRequest("Debe agregar al menos un producto");
 
-            venta.Fecha = DateTime.Now;
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+            venta.Fecha = fechaMexico;
             venta.Total = 0;
 
             foreach (var detalle in venta.Detalleventa)
@@ -106,7 +108,7 @@ namespace SistemaComercialPyme.Controllers.Admin
             if (venta.MetodoPagoId == 1) // Efectivo
             {
                 venta.Pagado = true;
-                venta.FechaPago = DateTime.Now;
+                venta.FechaPago = fechaMexico;
                 venta.ReferenciaPago = $"EF-{Guid.NewGuid():N}".Substring(0, 8);
                 venta.TotalPagado = venta.Total;
             }
@@ -238,13 +240,17 @@ namespace SistemaComercialPyme.Controllers.Admin
                         .FirstOrDefaultAsync(v => v.VentaId == ventaId);
 
                     if (venta == null) return BadRequest();
+                    // 🔹 Zona horaria de México
+                    TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+                    DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
 
                     // 🔹 Monto pagado en esta transacción
                     var montoPagado = (session.AmountTotal ?? 0) / 100m;
 
                     venta.TotalPagado = (venta.TotalPagado ?? 0) + montoPagado;
                     venta.Pagado = venta.TotalPagado >= venta.Total;
-                    venta.FechaPago = DateTime.Now;
+                    venta.FechaPago = fechaMexico;
                     venta.StripePaymentIntentId = session.PaymentIntentId;
                     venta.ReferenciaPago = $"ST-{session.PaymentIntentId}";
 
