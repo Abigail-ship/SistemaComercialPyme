@@ -290,6 +290,7 @@ public partial class PymeArtesaniasContext : DbContext
         modelBuilder.Entity<UsuariosCliente>(entity =>
         {
             entity.HasKey(e => e.UsuarioId);
+            entity.ToTable("usuariosclientes");
 
             entity.Property(e => e.Email)
                 .IsRequired()
