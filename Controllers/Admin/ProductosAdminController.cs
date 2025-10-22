@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaComercialPyme.Models;
+using SistemaComercialPyme.Services;
 
 namespace SistemaComercialPyme.Controllers.Admin
 {
@@ -11,11 +12,13 @@ namespace SistemaComercialPyme.Controllers.Admin
     {
         private readonly PymeArtesaniasContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly S3Service _s3Service;
 
-        public ProductosAdminController(PymeArtesaniasContext context, IWebHostEnvironment hostEnvironment)
+        public ProductosAdminController(PymeArtesaniasContext context, IWebHostEnvironment hostEnvironment, S3Service s3Service)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
+            _s3Service = s3Service;
         }
 
         private DateTime FechaMexico()
@@ -55,20 +58,9 @@ namespace SistemaComercialPyme.Controllers.Admin
         {
             if (imagenFile != null && imagenFile.Length > 0)
             {
-                // Carpeta personalizada dentro del proyecto
-                string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "productos");
-
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
-
-                string fileName = Guid.NewGuid() + Path.GetExtension(imagenFile.FileName);
-                string fullPath = Path.Combine(uploadPath, fileName);
-
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await imagenFile.CopyToAsync(stream);
-
-                // Guardamos la ruta relativa para que Angular pueda mostrarla
-                producto.Imagen = Path.Combine("uploads", "productos", fileName).Replace("\\", "/");
+                // 🔹 Subimos imagen directamente a S3
+                string imageUrl = await _s3Service.UploadFileAsync(imagenFile, "uploads/productos");
+                producto.Imagen = imageUrl;
             }
 
             producto.FechaCreacion = FechaMexico();
@@ -88,19 +80,10 @@ namespace SistemaComercialPyme.Controllers.Admin
             if (productoOriginal == null) return NotFound();
 
             // Reemplazar imagen si hay nueva
-            if (imagenFile != null && imagenFile.Length > 0)
-            {
-                string wwwRootPath = _hostEnvironment.WebRootPath;
-                string fileName = Guid.NewGuid() + Path.GetExtension(imagenFile.FileName);
-                string path = Path.Combine(wwwRootPath, "uploads/productos");
-
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-
-                string fullPath = Path.Combine(path, fileName);
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await imagenFile.CopyToAsync(stream);
-
-                producto.Imagen = "/uploads/productos/" + fileName;
+            if(imagenFile != null && imagenFile.Length > 0)
+        {
+                string imageUrl = await _s3Service.UploadFileAsync(imagenFile, "uploads/productos");
+                producto.Imagen = imageUrl;
             }
             else
             {

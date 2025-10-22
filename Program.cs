@@ -60,6 +60,8 @@ builder.Services.AddScoped<StripeService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<S3Service>();
+
 
 // 🔹 CORS
 builder.Services.AddCors(options =>
