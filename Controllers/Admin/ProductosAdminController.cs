@@ -23,7 +23,7 @@ namespace SistemaComercialPyme.Controllers.Admin
 
         private DateTime FechaMexico()
         {
-            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"); // Hora de México
+            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City"); // Hora de México
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoZone);
         }
 

@@ -74,6 +74,11 @@ namespace SistemaComercialPyme.Controllers.Clientes
             if (request.DetalleVentas == null || request.DetalleVentas.Count == 0)
                 return BadRequest("Debe agregar al menos un producto");
 
+            // 🔹 Definir zona horaria de México
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+            DateTime fechaMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+
             // 🔹 Buscar cliente por correo
             var cliente = await _context.Clientes
                 .FirstOrDefaultAsync(c => c.Email != null && c.Email.ToLower() == request.UsuarioEmail.ToLower());
@@ -155,7 +160,7 @@ namespace SistemaComercialPyme.Controllers.Clientes
                     .Where(d => d.VentaId == ventaExistente.VentaId)
                     .SumAsync(d => d.Subtotal);
 
-                ventaExistente.Fecha = DateTime.Now;
+                ventaExistente.Fecha = fechaMexico;
 
                 _context.Update(ventaExistente);
                 await _context.SaveChangesAsync();
@@ -168,7 +173,7 @@ namespace SistemaComercialPyme.Controllers.Clientes
             {
                 UsuarioId = request.UsuarioId,
                 ClienteId = cliente.ClienteId,
-                Fecha = DateTime.Now,
+                Fecha = fechaMexico,
                 Pagado = false,
                 Detalleventa = new List<DetalleVenta>()
             };
