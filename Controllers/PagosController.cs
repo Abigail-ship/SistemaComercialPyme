@@ -25,7 +25,7 @@ namespace SistemaComercialPyme.Controllers
 
         private static DateTime FechaMexico()
         {
-            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            TimeZoneInfo mexicoZone = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoZone);
         }
 
