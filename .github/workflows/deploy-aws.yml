@@ -16,7 +16,7 @@ jobs:
     env:
       AWS_REGION: us-east-2 # Región de Ohio
       EB_APPLICATION_NAME: SistemaComercialPyme
-      EB_ENVIRONMENT_NAME: SistemaComercialPyme-env
+      EB_ENVIRONMENT_NAME: SistemaComercialArtesanalPyme-env
 
     steps:
       # Paso 1: Checkout - Descarga el código
