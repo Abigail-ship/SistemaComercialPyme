@@ -63,7 +63,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<S3Service>();
 
 
-// 🔹 CORS
+// 🔹 CORS CON S3
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
