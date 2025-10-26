@@ -67,7 +67,8 @@ builder.Services.AddScoped<S3Service>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins("http://localhost:4200", "http://localhost:43629")
+        policy.WithOrigins("http://localhost:4200", "http://localhost:43629",
+        "http://dev-pyme-admin-artesanal.s3-website.us-east-2.amazonaws.com", "http://dev-cliente-pyme-artesanal.s3-website.us-east-2.amazonaws.com")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
